@@ -4,87 +4,71 @@
   <meta charset="UTF-8">
   <title>Fragen Generator</title>
   <style>
-    body {
-      font-family: Arial;
-      margin-top: 80px;
-      text-align: center;
+    body { font-family: Arial; margin-top: 80px; text-align: center; }
+    h1 { text-align: center; }
+    button { padding: 15px; font-size: 18px; cursor: pointer; }
+    #debug { color: red; font-size: 14px; margin: 20px; }
+    #anwendungsprofil { 
+      font-size: 18px; margin-top: 20px; max-width: 800px; 
+      margin-left: auto; margin-right: auto; text-align: center; 
+      font-weight: bold; color: #555;
     }
-
-    h1 {
-      text-align: center;
-    }
-
-    button {
-      padding: 15px;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    #anwendungsprofil {
-      font-size: 18px;
-      margin-top: 20px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: center;  /* Anwendungsprofil mittig */
-      font-weight: bold;
-      color: #555;
-    }
-
-    #frage {
-      font-size: 24px;
-      margin-top: 20px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-      text-align: justify;
+    #frage { 
+      font-size: 24px; margin-top: 20px; max-width: 800px; 
+      margin-left: auto; margin-right: auto; text-align: justify; 
       line-height: 1.4;
     }
   </style>
 </head>
 <body>
-
 <h1>Fragen Generator</h1>
-
 <button onclick="randomFrage()">Szenario generieren</button>
-
+<p id="debug"></p>
 <p id="anwendungsprofil"></p>
 <p id="frage">Klicke auf den Button, um ein Szenario anzuzeigen.</p>
 
 <script>
-let szenarien = []; // Array von Objekten: [{profil: "...", szenario: "..."}, ...]
+let szenarien = [];
 
-// CSV laden (Spalte 1 = Profil, Spalte 2 = Szenario)
 fetch('rem-fragen.csv')
   .then(response => {
     if (!response.ok) {
+      document.getElementById('debug').textContent = 'FEHLER: CSV nicht gefunden! (' + response.status + ')';
       throw new Error('CSV konnte nicht geladen werden: ' + response.status);
     }
     return response.text();
   })
   .then(text => {
     const lines = text.split(/\r?\n/);
-
+    
     szenarien = lines
       .map(line => {
-        const parts = line.split(';'); // oder ',' je nach Trennzeichen
-        const profil = parts[0]?.trim();
-        const szenario = parts[1]?.trim();
-        return { profil, szenario };
+        if (!line.trim()) return null;
+        
+        // Entferne führende/trailing Anführungszeichen und handle CSV-Escaping
+        let cleanLine = line.trim().replace(/^"|"$/g, '').replace(/""/g, '"');
+        
+        const parts = cleanLine.split(';');
+        if (parts.length < 2) return null;
+        
+        const szenario = parts[0].trim();
+        const profileRaw = parts[1].trim();
+        
+        // Mehrere Profile zu String (Komma-separiert)
+        const profile = profileRaw.replace(/^"|"$/g, '').trim();
+        
+        return { profil: profile, szenario: szenario };
       })
-      .filter(item => item.profil && item.szenario) // nur vollständige Zeilen
-      .map(item => ({
-        profil: item.profil.replace(/^"(.*)"$/, '$1').replace(/""/g, '"'),
-        szenario: item.szenario.replace(/^"(.*)"$/, '$1').replace(/""/g, '"')
-      }));
+      .filter(item => item && item.profil && item.szenario);
 
-    console.log('Szenarien geladen:', szenarien);
+    document.getElementById('debug').textContent = `Geladen: ${szenarien.length} Szenarien`;
+    console.log('Szenarien:', szenarien);
   })
   .catch(err => {
+    document.getElementById('debug').textContent = 'Fehler: ' + err.message;
     console.error(err);
   });
 
-// Zufälliges Szenario anzeigen
 function randomFrage() {
   if (szenarien.length === 0) {
     document.getElementById('frage').textContent = 'Szenarien werden noch geladen...';
@@ -98,6 +82,5 @@ function randomFrage() {
   document.getElementById('frage').textContent = aktuelles.szenario;
 }
 </script>
-
 </body>
 </html>
