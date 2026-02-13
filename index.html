@@ -17,26 +17,31 @@
 
 <p id="frage">Klicke auf den Button, um ein Szenario anzuzeigen.</p>
 
-<!-- PapaParse Bibliothek -->
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
 <script>
 let szenarien = [];
 
-// CSV laden und parsen
-Papa.parse('rem-fragen.csv', {
-  download: true,
-  header: true,       // erste Zeile = Header
-  skipEmptyLines: true,
-  complete: function(results) {
-    // Nur die zweite Spalte (Szenario) extrahieren
-    szenarien = results.data.map(row => row.Szenario.trim()).filter(s => s.length > 0);
-    console.log('Szenarien geladen:', szenarien.length);
-  },
-  error: function(err) {
-    console.error('Fehler beim Laden/Parsen der CSV:', err);
-  }
-});
+// CSV laden (nur erste Spalte, keine Header)
+fetch('rem-fragen.csv')
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('CSV konnte nicht geladen werden: ' + response.status);
+    }
+    return response.text();
+  })
+  .then(text => {
+    // Zeilen aufsplitten
+    const lines = text.split(/\r?\n/);
+
+    // Erste Spalte jeder Zeile nehmen
+    szenarien = lines
+      .map(line => line.split(';')[0].trim()) // Trennzeichen anpassen: ';' oder ','
+      .filter(s => s.length > 0);
+    
+    console.log('Szenarien geladen:', szenarien);
+  })
+  .catch(err => {
+    console.error(err);
+  });
 
 // Zufälliges Szenario anzeigen
 function randomFrage() {
