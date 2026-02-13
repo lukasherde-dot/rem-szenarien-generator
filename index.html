@@ -17,18 +17,28 @@
 <p id="frage"></p>
 
 <script>
-  // === Liste deiner Fragen ===
-  const fragen = [
-    "Wie setze ich den Titel für ein Video an?",
-    "Wie bewertet der Chatbot die Relevanz von Informationen?",
-    "Welche Eingaben versteht der Chatbot am besten?",
-    // ... hier deine restlichen ~130 Fragen einfügen
-  ];
+let fragen = [];
 
-  function randomFrage() {
-    const zufall = Math.floor(Math.random() * fragen.length);
-    document.getElementById("frage").textContent = fragen[zufall];
+// CSV laden und in Array umwandeln
+fetch('fragen.csv')
+  .then(response => response.text())
+  .then(text => {
+    // CSV in Zeilen splitten
+    const lines = text.split('\n');
+    // erste Zeile = Header, ignorieren, Rest = Fragen
+    fragen = lines.slice(1).map(line => line.trim()).filter(line => line.length > 0);
+  })
+  .catch(err => console.error('Fehler beim Laden der CSV:', err));
+
+// Funktion, um eine zufällige Frage anzuzeigen
+function randomFrage() {
+  if (fragen.length === 0) {
+    document.getElementById('frage').textContent = 'Fragen werden geladen...';
+    return;
   }
+  const zufall = Math.floor(Math.random() * fragen.length);
+  document.getElementById('frage').textContent = fragen[zufall];
+}
 </script>
 
 </body>
