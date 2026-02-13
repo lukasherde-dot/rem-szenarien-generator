@@ -9,21 +9,8 @@
     #frage { font-size: 24px; margin-top: 40px; }
   </style>
 </head>
-<body>
-
-<script>
-  // === Passwortschutz ===
-  const passwort = "meinpasswort123"; // <-- hier dein Passwort setzen
-
-  let eingabe = prompt("Bitte Passwort eingeben:");
-
-  if (eingabe !== passwort) {
-    document.write("<h2>Zugriff verweigert</h2>");
-    throw new Error("Passwort falsch");
-  }
-</script>
-
-<h1>Fragen Generator</h1>
+  
+<body><h1>Fragen Generator</h1>
 
 <button onclick="randomFrage()">Frage generieren</button>
 
