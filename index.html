@@ -90,7 +90,6 @@ fetch('rem-fragen_neu.csv')
   });
 
 function randomFrage() {
-  document.getElementById('debug').textContent = `Verfügbar: ${szenarien.length} Szenarien`;
   if (szenarien.length === 0) {
     document.getElementById('frage').textContent = 'Szenarien werden noch geladen...';
     return;
