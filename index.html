@@ -21,7 +21,7 @@
 let szenarien = [];
 
 // CSV laden (nur erste Spalte, keine Header)
-fetch('rem-fragen.csv')
+fetch('rem-fragen_neu.csv')
   .then(response => {
     if (!response.ok) {
       throw new Error('CSV konnte nicht geladen werden: ' + response.status);
