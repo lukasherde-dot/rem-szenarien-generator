@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Fragen Generator</title>
+  <meta charset="UTF-8">
+</head>
+
+<body style="font-family: Arial; text-align: center; margin-top: 100px;">
+
+<h1>Fragen Generator</h1>
+
+<button onclick="randomFrage()" style="padding:15px; font-size:18px;">
+  Frage generieren
+</button>
+
+<p id="frage" style="font-size:24px; margin-top:40px;"></p>
+
+<script>
+const fragen = [
+  "Frage 1 hier",
+  "Frage 2 hier",
+  "Frage 3 hier"
+  // hier einfach deine 130 Fragen einfügen
+];
+
+function randomFrage() {
+  const zufall = Math.floor(Math.random() * fragen.length);
+  document.getElementById("frage").textContent = fragen[zufall];
+}
+</script>
+
+</body>
+</html>
