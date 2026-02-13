@@ -25,19 +25,25 @@ fetch('rem-fragen.csv')
   .then(text => {
     // CSV in Zeilen splitten
     const lines = text.split('\n');
-    // erste Zeile = Header, ignorieren, Rest = Fragen
-    fragen = lines.slice(1).map(line => line.trim()).filter(line => line.length > 0);
+// Header ignorieren
+    const dataLines = lines.slice(1);
+
+    // Nur die zweite Spalte aus jeder Zeile extrahieren
+    szenarien = dataLines.map(line => {
+      const cols = line.split(',');  // Spalten anhand Komma trennen
+      return cols[1] ? cols[1].trim() : '';  // zweite Spalte, trim für Leerzeichen
+    }).filter(s => s.length > 0); // leere Einträge entfernen
   })
   .catch(err => console.error('Fehler beim Laden der CSV:', err));
 
-// Funktion, um eine zufällige Frage anzuzeigen
+// Zufälliges Szenario anzeigen
 function randomFrage() {
-  if (fragen.length === 0) {
-    document.getElementById('frage').textContent = 'Fragen werden geladen...';
+  if (szenarien.length === 0) {
+    document.getElementById('frage').textContent = 'Szenarien werden geladen...';
     return;
   }
-  const zufall = Math.floor(Math.random() * fragen.length);
-  document.getElementById('frage').textContent = fragen[zufall];
+  const zufall = Math.floor(Math.random() * szenarien.length);
+  document.getElementById('frage').textContent = szenarien[zufall];
 }
 </script>
 
