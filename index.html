@@ -7,11 +7,11 @@
     body {
       font-family: Arial;
       margin-top: 80px;
-      text-align: center; /* zentriert Überschrift & Button */
+      text-align: center;
     }
 
     h1 {
-      text-align: center; /* Überschrift bleibt zentriert */
+      text-align: center;
     }
 
     button {
@@ -20,30 +20,42 @@
       cursor: pointer;
     }
 
-    #frage {
-      font-size: 24px;
-      margin-top: 40px;
+    #anwendungsprofil {
+      font-size: 18px;
+      margin-top: 20px;
       max-width: 800px;
       margin-left: auto;
       margin-right: auto;
-      text-align: justify; /* Blocksatz nur für Szenario-Text */
-      line-height: 1.4;    /* bessere Lesbarkeit */
+      text-align: center;  /* Anwendungsprofil mittig */
+      font-weight: bold;
+      color: #555;
+    }
+
+    #frage {
+      font-size: 24px;
+      margin-top: 20px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: justify;
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
 
-<h1>Szenarien-Generator</h1>
+<h1>Fragen Generator</h1>
 
 <button onclick="randomFrage()">Szenario generieren</button>
 
+<p id="anwendungsprofil"></p>
 <p id="frage">Klicke auf den Button, um ein Szenario anzuzeigen.</p>
 
 <script>
-let szenarien = [];
+let szenarien = []; // Array von Objekten: [{profil: "...", szenario: "..."}, ...]
 
-// CSV laden (nur erste Spalte, keine Header)
-fetch('rem-fragen_neu.csv')
+// CSV laden (Spalte 1 = Profil, Spalte 2 = Szenario)
+fetch('rem-fragen.csv')
   .then(response => {
     if (!response.ok) {
       throw new Error('CSV konnte nicht geladen werden: ' + response.status);
@@ -51,16 +63,21 @@ fetch('rem-fragen_neu.csv')
     return response.text();
   })
   .then(text => {
-    // Zeilen aufsplitten
     const lines = text.split(/\r?\n/);
 
-    // Erste Spalte jeder Zeile nehmen + "" entfernen
     szenarien = lines
-      .map(line => line.split(';')[0].trim())        // erste Spalte
-      .map(text => text.replace(/^"(.*)"$/, '$1'))   // äußere "..." entfernen
-      .map(text => text.replace(/""/g, '"'))         // doppelte "" -> "
-      .filter(s => s.length > 0);
-    
+      .map(line => {
+        const parts = line.split(';'); // oder ',' je nach Trennzeichen
+        const profil = parts[0]?.trim();
+        const szenario = parts[1]?.trim();
+        return { profil, szenario };
+      })
+      .filter(item => item.profil && item.szenario) // nur vollständige Zeilen
+      .map(item => ({
+        profil: item.profil.replace(/^"(.*)"$/, '$1').replace(/""/g, '"'),
+        szenario: item.szenario.replace(/^"(.*)"$/, '$1').replace(/""/g, '"')
+      }));
+
     console.log('Szenarien geladen:', szenarien);
   })
   .catch(err => {
@@ -73,8 +90,12 @@ function randomFrage() {
     document.getElementById('frage').textContent = 'Szenarien werden noch geladen...';
     return;
   }
+  
   const zufall = Math.floor(Math.random() * szenarien.length);
-  document.getElementById('frage').textContent = szenarien[zufall];
+  const aktuelles = szenarien[zufall];
+  
+  document.getElementById('anwendungsprofil').textContent = 'Anwendungsprofil: ' + aktuelles.profil;
+  document.getElementById('frage').textContent = aktuelles.szenario;
 }
 </script>
 
