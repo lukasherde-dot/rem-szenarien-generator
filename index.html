@@ -32,9 +32,11 @@ fetch('rem-fragen_neu.csv')
     // Zeilen aufsplitten
     const lines = text.split(/\r?\n/);
 
-    // Erste Spalte jeder Zeile nehmen
+    // Erste Spalte jeder Zeile nehmen + "" entfernen
     szenarien = lines
-      .map(line => line.split(';')[0].trim()) // Trennzeichen anpassen: ';' oder ','
+      .map(line => line.split(';')[0].trim())        // erste Spalte
+      .map(text => text.replace(/^"(.*)"$/, '$1'))   // äußere "..." entfernen
+      .map(text => text.replace(/""/g, '"'))         // doppelte "" -> "
       .filter(s => s.length > 0);
     
     console.log('Szenarien geladen:', szenarien);
