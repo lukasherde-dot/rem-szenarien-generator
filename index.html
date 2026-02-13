@@ -81,6 +81,10 @@ fetch('rem-fragen_neu.csv')
       })
       .filter(item => item && item.profil && item.szenario);
 
+  document.getElementById('debug').textContent = `Geladen: ${szenarien.length} Szenarien`;
+    console.log('Szenarien:', szenarien);
+  })
+    
   .catch(err => {
     document.getElementById('debug').textContent = 'Fehler: ' + err.message;
     console.error(err);
