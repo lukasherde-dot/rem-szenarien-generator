@@ -4,18 +4,41 @@
   <meta charset="UTF-8">
   <title>Fragen Generator</title>
   <style>
-    body { font-family: Arial; margin-top: 80px; text-align: center; }
-    h1 { text-align: center; }
-    button { padding: 15px; font-size: 18px; cursor: pointer; }
-    #debug { color: red; font-size: 14px; margin: 20px; }
+    body { 
+      font-family: Arial; 
+      margin-top: 80px; 
+      text-align: center; 
+    }
+    h1 { 
+      text-align: center; 
+    }
+    button { 
+      padding: 15px; 
+      font-size: 18px; 
+      cursor: pointer; 
+    }
+    #debug { 
+      color: red; 
+      font-size: 14px; 
+      margin: 20px; 
+    }
     #anwendungsprofil { 
-      font-size: 18px; margin-top: 20px; max-width: 800px; 
-      margin-left: auto; margin-right: auto; text-align: center; 
-      font-weight: bold; color: #555;
+      font-size: 18px; 
+      margin-top: 20px; 
+      max-width: 800px; 
+      margin-left: auto; 
+      margin-right: auto; 
+      text-align: center; 
+      font-weight: bold; 
+      color: #555;
     }
     #frage { 
-      font-size: 24px; margin-top: 20px; max-width: 800px; 
-      margin-left: auto; margin-right: auto; text-align: justify; 
+      font-size: 24px; 
+      margin-top: 20px; 
+      max-width: 800px; 
+      margin-left: auto; 
+      margin-right: auto; 
+      text-align: justify; 
       line-height: 1.4;
     }
   </style>
@@ -45,19 +68,16 @@ fetch('rem-fragen.csv')
       .map(line => {
         if (!line.trim()) return null;
         
-        // Entferne führende/trailing Anführungszeichen und handle CSV-Escaping
-        let cleanLine = line.trim().replace(/^"|"$/g, '').replace(/""/g, '"');
+        // FIX: Split NACH dem LETZTEN Semikolon (Profil steht immer am Ende)
+        const lastSemicolon = line.lastIndexOf(';');
+        if (lastSemicolon === -1) return null;
         
-        const parts = cleanLine.split(';');
-        if (parts.length < 2) return null;
+        const szenario = line.substring(0, lastSemicolon).trim()
+          .replace(/^"|"$/g, '').replace(/""/g, '"');
+        const profil = line.substring(lastSemicolon + 1).trim()
+          .replace(/^"|"$/g, '');
         
-        const szenario = parts[0].trim();
-        const profileRaw = parts[1].trim();
-        
-        // Mehrere Profile zu String (Komma-separiert)
-        const profile = profileRaw.replace(/^"|"$/g, '').trim();
-        
-        return { profil: profile, szenario: szenario };
+        return { profil, szenario };
       })
       .filter(item => item && item.profil && item.szenario);
 
@@ -70,6 +90,7 @@ fetch('rem-fragen.csv')
   });
 
 function randomFrage() {
+  document.getElementById('debug').textContent = `Verfügbar: ${szenarien.length} Szenarien`;
   if (szenarien.length === 0) {
     document.getElementById('frage').textContent = 'Szenarien werden noch geladen...';
     return;
